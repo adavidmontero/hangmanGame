@@ -37,10 +37,12 @@ function App() {
     };
 
     if (isPlaying) {
-      setUserLetters([]);
-      setAttemps(9);
-      setGameOver(false);
       getWord();
+      if (word) {
+        setUserLetters([]);
+        setAttemps(9);
+        setGameOver(false);
+      }
     }
   }, [isPlaying]);
 
