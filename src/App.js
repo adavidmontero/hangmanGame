@@ -1,10 +1,15 @@
 import React, { useEffect, useState, useRef, Fragment } from 'react';
 import './index.css';
 import Header from './components/Header';
+import Keyboard from './components/Keyboard';
+import Floors from './components/Floors';
+import Attemps from './components/Attemps';
+import Result from './components/Result';
 
 function App() {
 
   //Estado para el teclado de letras
+  //eslint-disable-next-line
   const [letters, setLetters] = useState(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
                                           'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
                                           'V', 'W', 'X', 'Y', 'Z']);
@@ -23,6 +28,8 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   //Estado de la palabra ingresada por el usuario
   const [wordUser, setWordUser] = useState('');
+  //Estado que espera la palabra a descubrir
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const getWord = async () => {
@@ -39,11 +46,13 @@ function App() {
     if (isPlaying) {
       getWord();
       if (word) {
+        setLoading(false);
         setUserLetters([]);
         setAttemps(9);
         setGameOver(false);
       }
     }
+    //eslint-disable-next-line
   }, [isPlaying]);
 
   useEffect(() => {
@@ -54,6 +63,7 @@ function App() {
         behavior: "smooth"
       });
     }
+    //eslint-disable-next-line
   }, [attemps]);
 
   useEffect(() => {
@@ -66,7 +76,7 @@ function App() {
         behavior: "smooth"
       });
     }
-
+    //eslint-disable-next-line
   }, [userLetters]);
 
   useEffect(() => {
@@ -78,6 +88,7 @@ function App() {
   const start = () => {
     //Cambiamos el estado a true
     setIsPlaying(true);
+    setLoading(true);
     disableButton(startButton.current);
     enableButton(restartButton.current);
     enableButton(stopButton.current);
@@ -116,40 +127,12 @@ function App() {
     });
   };
 
-  //Evento cuando el usuario presiona una letra
-  const pressLetter = i => {
-    //Agregamos la letra al estado de letras correctas seleccionadas por el usuario
-    word.forEach(w => {
-      if (w === divRef.current.children[i].value.toLowerCase()) {
-        setUserLetters([
-          ...userLetters,
-          w
-        ]);
-      }
-    });
-    
-    //Restamos intentos si la palabra no esta en el array de la palabra
-    if (!word.includes(divRef.current.children[i].value.toLowerCase())) {
-      setAttemps(attemps - 1);
-    }
-    
-    //Deshabilitamos el boton cuando es presionado
-    disableLetter(divRef.current.children[i]);
-
-    if (!gameOver && attemps > 0) {
-      divFloors.current.scrollIntoView({
-        behavior: "smooth"
-      });
-    }
-  };
-
   //Referencias a los botones principales y al div del teclado
   const startButton = useRef(null);
   const restartButton = useRef(null);
   const stopButton = useRef(null);
   const wordButton = useRef(null);
   const inputWord = useRef(null);
-  const divRef = useRef(null);
   const divResult = useRef(null);
   const divFloors = useRef(null);
 
@@ -166,14 +149,6 @@ function App() {
     button.classList.remove('bg-secondary-red');
   };
 
-  const disableLetter = button => {
-    button.disabled = true;
-    button.classList.add('cursor-not-allowed');
-    button.classList.remove('bg-primary-black');
-    button.classList.remove('hover:bg-secondary-black');
-    button.classList.add('bg-secondary-red');
-  };
-
   return (
     <div className="relative min-h-screen px-6 bg-primary-black font-display">
       <Header 
@@ -181,68 +156,39 @@ function App() {
       />
       <div className="main-content container mx-auto p-4 bg-white border-8 border-secondary-gray rounded">
         <div className="cards flex flex-wrap justify-center items-center gap-4 h-full overflow-y-scroll md:overflow-y-auto">
-          <div className="card w-full flex flex-wrap justify-center items-center p-2 bg-secondary-gray" ref = { divFloors }>
-            {
-              isPlaying
-              ?
-                word.map((w, index) => (
-                  <span key={index} className="px-2 w-8 h-8 font-display font-bold text-center border-b-4 border-primary-black mr-1">{ userLetters.includes(w) ? w : '' }</span>
-                ))
-              :
-                null
-            }
-          </div>
-          <div className="card w-full flex flex-col justify-center items-center p-2 bg-secondary-gray">
-            {
-              isPlaying
-              ?
-                <Fragment>
-                  <p>Tienes</p>
-                  <h3 className="text-7xl">{ attemps }</h3>
-                  <p>intento(s)</p>
-                </Fragment>
-              :
-                null
-            }
-          </div>
-          <div className="card w-full flex flex-wrap justify-center items-center p-2 bg-secondary-gray" ref = { divRef }>
-            {
-              isPlaying
-              ?
-                letters.map((l, i) => (
-                  <button
-                    key={i}
-                    id={l}
-                    value={l}
-                    className="font-display bg-primary-black hover:bg-secondary-black text-white px-3 py-1 w-10 rounded mr-2"
-                    onClick={ () => pressLetter(i) }
-                  >{l}</button>
-                ))
-              :
-                null
-            }
-          </div>
-          <div className="card w-full flex flex-col justify-center items-center p-2 bg-secondary-gray text-center uppercase" ref = { divResult }>
-            {
-              (gameOver && attemps <= 0)
-              ?
-                <Fragment>
-                  <p>Te has quedado sin intentos</p>
-                  <h3 className="text-5xl">¡game over!</h3>
-                  <p>¡A la horca!</p>
-                </Fragment>
-              :
-                (gameOver && attemps > 0)
-              ?
-                <Fragment>
-                  <p>¡Oh, has ganado!</p>
-                  <h3 className="text-4xl">¡bien jugado!</h3>
-                  <p>Al parecer la horca tendrá que esperar</p>
-                </Fragment>
-              :
-                null
-            }
-          </div>
+          <Floors 
+            isPlaying={ isPlaying }
+            loading={ loading }
+            userLetters={ userLetters }
+            word={ word }
+            divFloors={ divFloors }
+          />
+
+          <Result 
+            attemps={ attemps }
+            isPlaying={ isPlaying }
+            loading={ loading }
+          />
+
+          <Keyboard 
+            attemps={ attemps }
+            gameOver={ gameOver }
+            isPlaying={ isPlaying }
+            loading={ loading }
+            letters={ letters }
+            word={ word }
+            userLetters={ userLetters }
+            divFloors={ divFloors }
+            setAttemps={ setAttemps }
+            setUserLetters={ setUserLetters }
+          />
+
+          <Attemps 
+            attemps={ attemps }
+            gameOver={ gameOver }
+            loading={ loading }
+            divResult={ divResult }
+          />
         </div>
       </div>
       <div className="container mx-auto flex justify-between items-center py-5">
