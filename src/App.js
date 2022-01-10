@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, Fragment } from 'react';
-import './index.css';
 import Header from './components/Header';
 import Keyboard from './components/Keyboard';
 import Floors from './components/Floors';
 import Attemps from './components/Attemps';
 import Result from './components/Result';
+import './index.css';
 
 function App() {
 
@@ -30,6 +30,8 @@ function App() {
   const [wordUser, setWordUser] = useState('');
   //Estado que espera la palabra a descubrir
   const [loading, setLoading] = useState(false);
+  //Estado para ver si hay un error
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const getWord = async () => {
@@ -44,13 +46,12 @@ function App() {
     };
 
     if (isPlaying) {
-      getWord();
-      if (word) {
+      getWord().then(() => {
         setLoading(false);
         setUserLetters([]);
         setAttemps(9);
         setGameOver(false);
-      }
+      });
     }
     //eslint-disable-next-line
   }, [isPlaying]);
@@ -112,6 +113,10 @@ function App() {
 
   const sendWord = e => {
     e.preventDefault();
+
+    if (!wordUser.trim()) {
+      return setError(true);
+    }
     
     if (wordUser === word.join('')) {
       setGameOver(true);
@@ -121,6 +126,7 @@ function App() {
     }
 
     setWordUser('');
+    setError(false);
     setShowModal(false);
     divResult.current.scrollIntoView({
       behavior: "smooth"
@@ -164,11 +170,11 @@ function App() {
             divFloors={ divFloors }
           />
 
-          <Result 
+          <Attemps 
             attemps={ attemps }
             isPlaying={ isPlaying }
             loading={ loading }
-          />
+          />          
 
           <Keyboard 
             attemps={ attemps }
@@ -183,11 +189,12 @@ function App() {
             setUserLetters={ setUserLetters }
           />
 
-          <Attemps 
+          <Result 
             attemps={ attemps }
             gameOver={ gameOver }
             loading={ loading }
             divResult={ divResult }
+            word={ word }
           />
         </div>
       </div>
@@ -241,7 +248,7 @@ function App() {
               className="px-2 justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none font-display"
             >
               <div className="relative w-5/6 md:w-1/3 my-6 mx-auto max-w-3xl">
-                <form>
+                <form onSubmit={ sendWord }>
                   {/*content*/}
                   <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
                     {/*header*/}
@@ -268,6 +275,13 @@ function App() {
                           value={ wordUser }
                           ref={ inputWord }
                         />
+                        {
+                          error 
+                          ?
+                            <small className="text-red-500">Debe ingresar una palabra válida</small>
+                          :
+                            null
+                        }
                     </div>
                     {/*footer*/}
                     <div className="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
@@ -279,9 +293,8 @@ function App() {
                         Cerrar
                       </button>
                       <button
-                        type="button"
+                        type="submit"
                         className="bg-primary-black text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                        onClick={ sendWord }
                       >
                         Comprobar
                       </button>
