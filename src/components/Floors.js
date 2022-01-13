@@ -1,3 +1,4 @@
+import React from 'react';
 
 const Floors = ({ isPlaying, loading, userLetters, word, divFloors }) => {
     return ( 

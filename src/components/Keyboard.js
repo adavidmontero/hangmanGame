@@ -1,15 +1,21 @@
-import React, { useRef } from 'react';
+import React, { useEffect } from 'react';
 
-const Keyboard = ({ attemps, gameOver, isPlaying, loading, letters, setAttemps, userLetters, word, setUserLetters, divFloors }) => {
+const Keyboard = ({ attemps, gameOver, isPlaying, loading, letters, setAttemps, userLetters, word, setUserLetters, divFloors, divKeyboard }) => {
 
-    //Referencias a los botones principales y al div del teclado
-    const divRef = useRef(null);
+    useEffect(() => {
+        if (isPlaying) {
+          divKeyboard.current.scrollIntoView({
+            behavior: "smooth"
+          });
+        }
+        //eslint-disable-next-line
+      }, [isPlaying]);
 
     //Evento cuando el usuario presiona una letra
     const pressLetter = i => {
         //Agregamos la letra al estado de letras correctas seleccionadas por el usuario
         word.forEach(w => {
-            if (w === divRef.current.children[i].value.toLowerCase()) {
+            if (w === divKeyboard.current.children[i].value.toLowerCase()) {
                 setUserLetters([
                 ...userLetters,
                 w
@@ -18,12 +24,12 @@ const Keyboard = ({ attemps, gameOver, isPlaying, loading, letters, setAttemps, 
         });
         
         //Restamos intentos si la palabra no esta en el array de la palabra
-        if (!word.includes(divRef.current.children[i].value.toLowerCase())) {
+        if (!word.includes(divKeyboard.current.children[i].value.toLowerCase())) {
             setAttemps(attemps - 1);
         }
         
         //Deshabilitamos el boton cuando es presionado
-        disableLetter(divRef.current.children[i]);
+        disableLetter(divKeyboard.current.children[i]);
 
         if (!gameOver && attemps > 0) {
             divFloors.current.scrollIntoView({
@@ -41,7 +47,7 @@ const Keyboard = ({ attemps, gameOver, isPlaying, loading, letters, setAttemps, 
     };
 
     return ( 
-        <div className="card w-full flex flex-wrap justify-center items-center p-2 bg-secondary-gray" ref = { divRef }>
+        <div className="card w-full flex flex-wrap justify-center items-center p-2 bg-secondary-gray" ref = { divKeyboard }>
             {
               isPlaying && !loading
               ?

@@ -30,6 +30,8 @@ function App() {
   const [wordUser, setWordUser] = useState('');
   //Estado que espera la palabra a descubrir
   const [loading, setLoading] = useState(false);
+  //Estado para saber si se rindió
+  const [surrender, setSurrender] = useState(false);
   //Estado para ver si hay un error
   const [error, setError] = useState(false);
 
@@ -87,7 +89,7 @@ function App() {
   }, [showModal])
 
   const start = () => {
-    //Cambiamos el estado a true
+    setSurrender(false);
     setIsPlaying(true);
     setLoading(true);
     disableButton(startButton.current);
@@ -104,6 +106,11 @@ function App() {
     disableButton(wordButton.current);
   };
 
+  const giveUp = () => {
+    stop();
+    setSurrender(true);
+  }
+
   const restart = () => {
     stop();
     setTimeout(() => {
@@ -118,7 +125,7 @@ function App() {
       return setError(true);
     }
     
-    if (wordUser === word.join('')) {
+    if (wordUser.toLowerCase() === word.join('')) {
       setGameOver(true);
       stop();
     } else {
@@ -128,9 +135,6 @@ function App() {
     setWordUser('');
     setError(false);
     setShowModal(false);
-    divResult.current.scrollIntoView({
-      behavior: "smooth"
-    });
   };
 
   //Referencias a los botones principales y al div del teclado
@@ -141,6 +145,7 @@ function App() {
   const inputWord = useRef(null);
   const divResult = useRef(null);
   const divFloors = useRef(null);
+  const divKeyboard = useRef(null);
 
   //Eventos para cambiar los estilos y comportamientos de los botones principales y del teclado
   const disableButton = button => {
@@ -185,6 +190,7 @@ function App() {
             word={ word }
             userLetters={ userLetters }
             divFloors={ divFloors }
+            divKeyboard={ divKeyboard }
             setAttemps={ setAttemps }
             setUserLetters={ setUserLetters }
           />
@@ -195,6 +201,7 @@ function App() {
             loading={ loading }
             divResult={ divResult }
             word={ word }
+            surrender={ surrender }
           />
         </div>
       </div>
@@ -222,7 +229,7 @@ function App() {
             className="cursor-not-allowed w-20 md:w-28 p-2 rounded-r-lg bg-secondary-red hover:bg-secondary-red border border-white" 
             type="button" 
             ref={ stopButton }
-            onClick={ stop }
+            onClick={ giveUp }
             disabled={ !isPlaying }
           >
             Rendirse
