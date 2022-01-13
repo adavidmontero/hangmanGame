@@ -35,6 +35,7 @@ function App() {
   //Estado para ver si hay un error
   const [error, setError] = useState(false);
 
+  //Hook para obtener la palabra a descubrir desde una API
   useEffect(() => {
     const getWord = async () => {
         const api = await fetch('https://palabras-aleatorias-public-api.herokuapp.com/random');
@@ -50,14 +51,15 @@ function App() {
     if (isPlaying) {
       getWord().then(() => {
         setLoading(false);
+        setGameOver(false);
         setUserLetters([]);
         setAttemps(9);
-        setGameOver(false);
       });
     }
     //eslint-disable-next-line
   }, [isPlaying]);
 
+  //Hook para revisar si el usuario tiene intentos disponibles sino ha perdido el juego
   useEffect(() => {
     if (attemps <= 0) {
       setGameOver(true);
@@ -69,6 +71,7 @@ function App() {
     //eslint-disable-next-line
   }, [attemps]);
 
+  //Hook para verificar si el usuario completó todas las letras necesarias para ganar
   useEffect(() => {
     const completeWord = (letter) => userLetters.includes(letter);
 
@@ -82,12 +85,14 @@ function App() {
     //eslint-disable-next-line
   }, [userLetters]);
 
+  //Hook para hacer focus en el input del modal
   useEffect(() => {
     if(showModal) {
       inputWord.current.focus();
     }
   }, [showModal])
 
+  //Función para iniciar el juego
   const start = () => {
     setSurrender(false);
     setIsPlaying(true);
@@ -98,6 +103,7 @@ function App() {
     enableButton(wordButton.current);
   };
 
+  //Función para detener el juego
   const stop = () => {
     setIsPlaying(false);
     enableButton(startButton.current);
@@ -106,11 +112,14 @@ function App() {
     disableButton(wordButton.current);
   };
 
+  //Función para rendirse en el juego
   const giveUp = () => {
     stop();
+    setGameOver(true);
     setSurrender(true);
   }
 
+  //Función para reiniciar el juego
   const restart = () => {
     stop();
     setTimeout(() => {
@@ -118,6 +127,7 @@ function App() {
     }, 250);
   }
 
+  //Función para enviar la palabra ingresada por el usuario y verificar si el igual a la palabra a descubrir
   const sendWord = e => {
     e.preventDefault();
 
@@ -202,6 +212,7 @@ function App() {
             divResult={ divResult }
             word={ word }
             surrender={ surrender }
+            setGameOver={ setGameOver }
           />
         </div>
       </div>

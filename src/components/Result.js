@@ -1,12 +1,18 @@
 import React, { useEffect, Fragment } from 'react';
 
-const Result = ({ attemps, gameOver, loading, divResult, word, surrender }) => {
+const Result = ({ attemps, gameOver, loading, divResult, word, surrender, setGameOver }) => {
 
   useEffect(() => {
     if (surrender || gameOver) {
       divResult.current.scrollIntoView({
         behavior: "smooth"
       });
+    }
+
+    if (gameOver) {
+      setTimeout(() => {
+        setGameOver(false);
+      }, 5000);
     }
     //eslint-disable-next-line
   }, [surrender, gameOver]);
@@ -22,7 +28,7 @@ const Result = ({ attemps, gameOver, loading, divResult, word, surrender }) => {
                   <p>Palabra: <span className="font-bold text-red-600">{ word }</span></p>
                 </Fragment>
               :
-                (gameOver && attemps > 0 && !loading)
+                (gameOver && attemps > 0 && !loading && !surrender)
               ?
                 <Fragment>
                   <h3 className="text-4xl">¡bien jugado!</h3>
@@ -30,7 +36,7 @@ const Result = ({ attemps, gameOver, loading, divResult, word, surrender }) => {
                   <p>Palabra: <span className="font-bold text-red-600">{ word }</span></p>
                 </Fragment>
               :
-                (surrender)
+                (gameOver && surrender)
               ?
                 <Fragment>
                   <h3 className="text-5xl">¡game over!</h3>
