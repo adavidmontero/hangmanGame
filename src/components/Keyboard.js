@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
 
-const Keyboard = ({ attemps, gameOver, isPlaying, loading, letters, setAttemps, userLetters, word, setUserLetters, divFloors, divKeyboard }) => {
+const Keyboard = ({ attemps, isGameOver, isPlaying, isLoading, letters, userLetters, word, setAttemps, setUserLetters, divFloors, divKeyboard }) => {
 
     useEffect(() => {
         if (isPlaying) {
@@ -31,7 +32,7 @@ const Keyboard = ({ attemps, gameOver, isPlaying, loading, letters, setAttemps, 
         //Deshabilitamos el boton cuando es presionado
         disableLetter(divKeyboard.current.children[i]);
 
-        if (!gameOver && attemps > 0) {
+        if (!isGameOver && attemps > 0) {
             divFloors.current.scrollIntoView({
                 behavior: "smooth"
             });
@@ -49,16 +50,16 @@ const Keyboard = ({ attemps, gameOver, isPlaying, loading, letters, setAttemps, 
     return ( 
         <div className="card w-full flex flex-wrap justify-center items-center p-2 bg-secondary-gray" ref = { divKeyboard }>
             {
-              isPlaying && !loading
+              isPlaying && !isLoading
               ?
                 letters.map((l, i) => (
                   <button
-                    key={i}
-                    id={l}
-                    value={l}
+                    key={ i }
+                    id={ l }
+                    value={ l }
                     className="font-display bg-primary-black hover:bg-secondary-black text-white px-3 py-1 w-10 rounded mr-2"
                     onClick={ () => pressLetter(i) }
-                  >{l}</button>
+                  >{ l }</button>
                 ))
               :
                 null
@@ -66,5 +67,18 @@ const Keyboard = ({ attemps, gameOver, isPlaying, loading, letters, setAttemps, 
           </div>
     );
 }
+
+Keyboard.propTypes = {
+  attemps: PropTypes.number.isRequired,
+  isGameOver: PropTypes.bool.isRequired,
+  isPlaying: PropTypes.bool.isRequired,
+  letters: PropTypes.array.isRequired,
+  userLetters: PropTypes.array.isRequired,
+  word: PropTypes.array.isRequired,
+  setAttemps: PropTypes.func.isRequired,
+  setUserLetters: PropTypes.func.isRequired, 
+  divFloors: PropTypes.object.isRequired, 
+  divKeyboard: PropTypes.object.isRequired 
+};
  
 export default Keyboard;

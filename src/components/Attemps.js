@@ -1,10 +1,11 @@
 import { Fragment } from 'react';
+import PropTypes from 'prop-types';
 
-const Attemps = ({ attemps, isPlaying, loading }) => {
+const Attemps = ({ attemps, isPlaying, isLoading }) => {
     return ( 
         <div className="card w-full flex flex-col justify-center items-center p-2 bg-secondary-gray">
             {
-              isPlaying && !loading
+              isPlaying && !isLoading
               ?
                 <Fragment>
                   <p>Tienes</p>
@@ -17,5 +18,11 @@ const Attemps = ({ attemps, isPlaying, loading }) => {
         </div>
     );
 }
+
+Attemps.propTypes = {
+  attemps: PropTypes.number.isRequired,
+  isPlaying: PropTypes.bool.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+};
  
 export default Attemps;

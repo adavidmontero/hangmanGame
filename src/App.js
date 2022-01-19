@@ -23,13 +23,13 @@ function App() {
   //Estado que contiene los intentos del usuario
   const [attemps, setAttemps] = useState(9);
   //Estado para saber si el juego terminó
-  const [gameOver, setGameOver] = useState(false);
+  const [isGameOver, setIsGameOver] = useState(false);
   //Estado para mostrar el modal
   const [showModal, setShowModal] = useState(false);
   //Estado de la palabra ingresada por el usuario
   const [wordUser, setWordUser] = useState('');
   //Estado que espera la palabra a descubrir
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   //Estado para saber si se rindió
   const [surrender, setSurrender] = useState(false);
   //Estado para ver si hay un error
@@ -50,8 +50,8 @@ function App() {
 
     if (isPlaying) {
       getWord().then(() => {
-        setLoading(false);
-        setGameOver(false);
+        setIsLoading(false);
+        setIsGameOver(false);
         setUserLetters([]);
         setAttemps(9);
       });
@@ -62,7 +62,7 @@ function App() {
   //Hook para revisar si el usuario tiene intentos disponibles sino ha perdido el juego
   useEffect(() => {
     if (attemps <= 0) {
-      setGameOver(true);
+      setIsGameOver(true);
       stop();
       divResult.current.scrollIntoView({
         behavior: "smooth"
@@ -76,7 +76,7 @@ function App() {
     const completeWord = (letter) => userLetters.includes(letter);
 
     if (userLetters.length !== 0 && word.every(completeWord)) {
-      setGameOver(true);
+      setIsGameOver(true);
       stop();
       divResult.current.scrollIntoView({
         behavior: "smooth"
@@ -96,7 +96,7 @@ function App() {
   const start = () => {
     setSurrender(false);
     setIsPlaying(true);
-    setLoading(true);
+    setIsLoading(true);
     disableButton(startButton.current);
     enableButton(restartButton.current);
     enableButton(stopButton.current);
@@ -115,7 +115,7 @@ function App() {
   //Función para rendirse en el juego
   const giveUp = () => {
     stop();
-    setGameOver(true);
+    setIsGameOver(true);
     setSurrender(true);
   }
 
@@ -136,7 +136,7 @@ function App() {
     }
     
     if (wordUser.toLowerCase() === word.join('')) {
-      setGameOver(true);
+      setIsGameOver(true);
       stop();
     } else {
       setAttemps(attemps - 2);
@@ -179,7 +179,7 @@ function App() {
         <div className="cards flex flex-wrap justify-center items-center gap-4 h-full overflow-y-scroll md:overflow-y-auto">
           <Floors 
             isPlaying={ isPlaying }
-            loading={ loading }
+            isLoading={ isLoading }
             userLetters={ userLetters }
             word={ word }
             divFloors={ divFloors }
@@ -188,14 +188,14 @@ function App() {
           <Attemps 
             attemps={ attemps }
             isPlaying={ isPlaying }
-            loading={ loading }
+            isLoading={ isLoading }
           />          
 
           <Keyboard 
             attemps={ attemps }
-            gameOver={ gameOver }
+            isGameOver={ isGameOver }
             isPlaying={ isPlaying }
-            loading={ loading }
+            isLoading={ isLoading }
             letters={ letters }
             word={ word }
             userLetters={ userLetters }
@@ -207,12 +207,12 @@ function App() {
 
           <Result 
             attemps={ attemps }
-            gameOver={ gameOver }
-            loading={ loading }
+            isGameOver={ isGameOver }
+            isLoading={ isLoading }
             divResult={ divResult }
             word={ word }
             surrender={ surrender }
-            setGameOver={ setGameOver }
+            setIsGameOver={ setIsGameOver }
           />
         </div>
       </div>
@@ -221,27 +221,27 @@ function App() {
           <button 
             className="w-20 md:w-28 p-2 rounded-l-lg bg-primary-red hover:bg-secondary-red border border-white"
             type="button" 
+            disabled={ isPlaying }
             ref={ startButton }
             onClick={ start }
-            disabled={ isPlaying }
           >
             Jugar
           </button>
           <button 
             className="cursor-not-allowed w-20 md:w-28 p-2 bg-secondary-red hover:bg-secondary-red border border-white" 
             type="button" 
+            disabled={ !isPlaying }
             ref={ restartButton }
             onClick={ restart }
-            disabled={ !isPlaying }
             >
             Reiniciar
           </button>
           <button 
             className="cursor-not-allowed w-20 md:w-28 p-2 rounded-r-lg bg-secondary-red hover:bg-secondary-red border border-white" 
             type="button" 
+            disabled={ !isPlaying }
             ref={ stopButton }
             onClick={ giveUp }
-            disabled={ !isPlaying }
           >
             Rendirse
           </button>
@@ -250,9 +250,9 @@ function App() {
           <button 
             className="cursor-not-allowed p-2 rounded bg-secondary-red hover:bg-secondary-red border border-white" 
             type="button" 
+            disabled={ !isPlaying }
             ref={ wordButton }
             onClick={ () => setShowModal(!showModal) }
-            disabled={ !isPlaying }
           >
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
           </button>
@@ -275,8 +275,8 @@ function App() {
                         Escribe la palabra a adivinar
                       </h3>
                       <button
-                        type="button"
                         className="p-1 ml-auto bg-transparent border-0 text-primary-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                        type="button"
                         onClick={() => setShowModal(false)}
                       >
                         <span className="bg-transparent text-primary-black h-6 w-6 text-2xl block outline-none focus:outline-none">
@@ -287,11 +287,11 @@ function App() {
                     {/*body*/}
                     <div className="relative p-6 flex-auto">
                         <input
-                          type="text"
                           className="py-2 px-4 w-full rounded border border-primary-black"
-                          onChange={ e => setWordUser( e.target.value ) }
+                          type="text"
                           value={ wordUser }
                           ref={ inputWord }
+                          onChange={ e => setWordUser( e.target.value ) }
                         />
                         {
                           error 
@@ -304,15 +304,15 @@ function App() {
                     {/*footer*/}
                     <div className="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
                       <button
-                        type="button"
                         className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                        type="button"
                         onClick={() => setShowModal(false)}
                       >
                         Cerrar
                       </button>
                       <button
-                        type="submit"
                         className="bg-primary-black text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                        type="submit"
                       >
                         Comprobar
                       </button>

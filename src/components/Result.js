@@ -1,26 +1,27 @@
 import React, { useEffect, Fragment } from 'react';
+import PropTypes from 'prop-types';
 
-const Result = ({ attemps, gameOver, loading, divResult, word, surrender, setGameOver }) => {
+const Result = ({ attemps, isGameOver, isLoading, word, surrender, setIsGameOver, divResult }) => {
 
   useEffect(() => {
-    if (surrender || gameOver) {
+    if (surrender || isGameOver) {
       divResult.current.scrollIntoView({
         behavior: "smooth"
       });
     }
 
-    if (gameOver) {
+    if (isGameOver) {
       setTimeout(() => {
-        setGameOver(false);
+        setIsGameOver(false);
       }, 5000);
     }
     //eslint-disable-next-line
-  }, [surrender, gameOver]);
+  }, [surrender, isGameOver]);
 
     return ( 
         <div className="card w-full flex flex-col justify-center items-center p-2 bg-secondary-gray text-center uppercase" ref = { divResult }>
             {
-              (gameOver && attemps <= 0 && !loading && !surrender)
+              (isGameOver && attemps <= 0 && !isLoading && !surrender)
               ?
                 <Fragment>
                   <h3 className="text-5xl">¡game over!</h3>
@@ -28,7 +29,7 @@ const Result = ({ attemps, gameOver, loading, divResult, word, surrender, setGam
                   <p>Palabra: <span className="font-bold text-red-600">{ word }</span></p>
                 </Fragment>
               :
-                (gameOver && attemps > 0 && !loading && !surrender)
+                (isGameOver && attemps > 0 && !isLoading && !surrender)
               ?
                 <Fragment>
                   <h3 className="text-4xl">¡bien jugado!</h3>
@@ -36,7 +37,7 @@ const Result = ({ attemps, gameOver, loading, divResult, word, surrender, setGam
                   <p>Palabra: <span className="font-bold text-red-600">{ word }</span></p>
                 </Fragment>
               :
-                (gameOver && surrender)
+                (isGameOver && surrender)
               ?
                 <Fragment>
                   <h3 className="text-5xl">¡game over!</h3>
@@ -48,6 +49,16 @@ const Result = ({ attemps, gameOver, loading, divResult, word, surrender, setGam
             }
         </div>
     );
+}
+
+Result.propTypes = {
+  attemps: PropTypes.number.isRequired, 
+  isGameOver: PropTypes.bool.isRequired, 
+  isLoading: PropTypes.bool.isRequired, 
+  word: PropTypes.array.isRequired, 
+  surrender: PropTypes.bool.isRequired, 
+  setIsGameOver: PropTypes.func.isRequired,
+  divResult: PropTypes.object.isRequired
 }
  
 export default Result;
